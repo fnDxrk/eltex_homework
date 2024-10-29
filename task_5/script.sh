@@ -5,5 +5,5 @@ STR="$1"
 if [ -z "$STR" ]; then
     echo "Ошибка! не задан параметр командной строки."
 else
-    echo "$STR"
+    pkill $STR
 fi

@@ -5,6 +5,8 @@
 
 int main()
 {
+    printf("Hello World!");
+
     int n = 0;
     double result = 0;
 

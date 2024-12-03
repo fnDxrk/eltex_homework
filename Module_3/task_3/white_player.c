@@ -6,7 +6,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define MAX_TIME 120 // Максимальное время
+#define MAX_TIME 15 // Максимальное время
 
 typedef struct {
     time_t white_time; // Время для белых
@@ -35,6 +35,13 @@ int main(int argc, char* argv[])
     if (str_clock == (Chess_clock*)-1) {
         perror("shmat");
         return EXIT_FAILURE;
+    }
+
+    // Инициализация состояния для белых
+    if (str_clock->current_player == 0) {
+        str_clock->current_player = 1;
+        str_clock->white_time = 0;
+        str_clock->black_time = 0;
     }
 
     // Если ход не белых, то выход

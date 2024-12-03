@@ -40,8 +40,6 @@ int main(int argc, char* argv[])
     // Инициализация состояния для чёрных
     if (str_clock->current_player == 0) {
         str_clock->current_player = 2;
-        str_clock->white_time = 0;
-        str_clock->black_time = 0;
     }
 
     // Если ход не чёрных, то выход
@@ -53,12 +51,11 @@ int main(int argc, char* argv[])
     // Текущее время
     time_t start_time = time(NULL);
 
-    // Меняем на ход белых
-    str_clock->current_player = 1;
-
     while (1) {
-        // Пауза
-        sleep(1);
+        // Цикл ожидания, если не твой ход
+        while (str_clock->current_player != 2) {
+            sleep(1);
+        }
 
         // Проверка, сколько времени прошло
         time_t current_time = time(NULL);
@@ -72,6 +69,11 @@ int main(int argc, char* argv[])
 
         // Вывод времени
         printf("Время чёрных : %ld секунд\n", str_clock->black_time);
+
+        // Переход к следующему ходу (для белых)
+        str_clock->current_player = 1;
+
+        sleep(1);
     }
 
     // Отключаемся от разделяемой памяти

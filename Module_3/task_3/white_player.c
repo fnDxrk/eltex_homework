@@ -37,43 +37,6 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    // Инициализация состояния для белых
-    if (str_clock->current_player == 0) {
-        str_clock->current_player = 1;
-        str_clock->white_time = 0;
-        str_clock->black_time = 0;
-    }
-
-    // Если ход не белых, то выход
-    if (str_clock->current_player != 1) {
-        printf("Сейчас не ваш ход.\n");
-        return EXIT_FAILURE;
-    }
-
-    // Текущее время
-    time_t start_time = time(NULL);
-
-    // Меняем на ход чёрных
-    str_clock->current_player = 2;
-
-    while (1) {
-        // Пауза
-        sleep(1);
-
-        // Проверка, сколько времени прошло
-        time_t current_time = time(NULL);
-        str_clock->white_time = current_time - start_time;
-
-        // Если время привысело максимальное время, то поражение
-        if (str_clock->white_time > MAX_TIME) {
-            printf("Техническое поражение белых.\n");
-            break;
-        }
-
-        // Вывод времени
-        printf("Время белых : %ld секунд\n", str_clock->white_time);
-    }
-
     // Отключаемся от разделяемой памяти
     if (shmdt(str_clock) == -1) {
         perror("shmdt");

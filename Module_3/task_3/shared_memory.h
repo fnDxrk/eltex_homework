@@ -16,12 +16,20 @@
 #define ID 2
 
 // Порог времени
-#define TIME_LIMIT 60
+#define TIME_LIMIT 5
+
+// Игроки
+#define PLAYER_WHITE 0
+#define PLAYER_BLACK 1
+
+// Конец игры
+#define GAME_OVER -1
 
 typedef struct {
     time_t white_time; // Время белых
     time_t black_time; // Время чёрных
-    int current_turn; // 0 - белые, 1 -  чёрные
+    int loser; // Кто проиграл : -1 - никто, 0 - белые, 1 - чёрные
+    int current_turn; // Чей ход : 0 - белые, 1 -  чёрные
 } ChessClock;
 
 // Подключение к разделяемой памяти

@@ -1,5 +1,4 @@
 #include "shared_memory.h"
-#include <time.h>
 
 ChessClock* connect_shared_memory()
 {
@@ -24,9 +23,11 @@ ChessClock* connect_shared_memory()
         return NULL;
     }
 
+    // Инициализация структуры
     clock->current_turn = 0;
     clock->black_time = 0;
     clock->white_time = 0;
+    clock->loser = -1;
 
     return clock;
 }

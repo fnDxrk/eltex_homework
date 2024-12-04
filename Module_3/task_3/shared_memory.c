@@ -1,4 +1,5 @@
 #include "shared_memory.h"
+#include <time.h>
 
 ChessClock* connect_shared_memory()
 {
@@ -22,6 +23,10 @@ ChessClock* connect_shared_memory()
         perror("shmat");
         return NULL;
     }
+
+    clock->current_turn = 0;
+    clock->black_time = 0;
+    clock->white_time = 0;
 
     return clock;
 }

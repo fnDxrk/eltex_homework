@@ -1,5 +1,4 @@
 #include "shared_memory.h"
-#include <stdlib.h>
 
 void handle_game_over(ChessClock* clock)
 {

@@ -46,6 +46,7 @@ void* thread_handle_sigint(void* arg) {
     return NULL;
 }
 
+// Функция для третьего потока: принимает SIGQUIT с помощью sigwait
 void* thread_handle_sigquit(void* arg) {
     printf("Поток 3 (обработка SIGQUIT) запущен\n");
 

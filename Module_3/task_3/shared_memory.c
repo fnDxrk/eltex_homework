@@ -10,10 +10,19 @@ ChessClock* connect_shared_memory()
     }
 
     // Создание разделяемой памяти
-    int shmid = shmget(shmkey, sizeof(ChessClock), IPC_CREAT | 0666);
+    int shmid = shmget(shmkey, sizeof(ChessClock), IPC_CREAT | IPC_EXCL | 0666);
     if (shmid == -1) {
-        perror("shmget");
-        return NULL;
+        // Если память уже существует, подключаемся к ней
+        if (errno == EEXIST) {
+            shmid = shmget(shmkey, sizeof(ChessClock), 0666);
+            if (shmid == -1) {
+                perror("shmget (existing)");
+                return NULL;
+            }
+        } else {
+            perror("shmget (new)");
+            return NULL;
+        }
     }
 
     // Подключение к разделяемой памяти
@@ -23,11 +32,13 @@ ChessClock* connect_shared_memory()
         return NULL;
     }
 
-    // Инициализация структуры
-    clock->current_turn = 0;
-    clock->black_time = 0;
-    clock->white_time = 0;
-    clock->loser = -1;
+    // Инициализация структуры только при первом создании
+    if (shmid != -1 && errno != EEXIST) {
+        clock->current_turn = 0;
+        clock->black_time = 0;
+        clock->white_time = 0;
+        clock->loser = -1;
+    }
 
     return clock;
 }
@@ -40,4 +51,41 @@ int disconnect_shared_memory(ChessClock* clock)
     }
 
     return EXIT_SUCCESS;
+}
+
+void cleanup_shared_memory()
+{
+    // Проверяем, существует ли файл
+    if (access(SHM_FILE, F_OK) == -1) {
+        printf("Файл %s уже удалён.\n", SHM_FILE);
+        return;
+    }
+
+    // Генерация ключа
+    key_t shmkey = ftok(SHM_FILE, ID);
+    if (shmkey == -1) {
+        perror("ftok (cleanup)");
+        return;
+    }
+
+    // Получение идентификатора разделяемой памяти
+    int shmid = shmget(shmkey, sizeof(ChessClock), 0666);
+    if (shmid == -1) {
+        perror("shmget (cleanup)");
+        return;
+    }
+
+    // Удаление разделяемой памяти
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+        perror("shmctl (cleanup)");
+        return;
+    }
+
+    // Удаление keyfile
+    if (unlink(SHM_FILE) == -1) {
+        perror("unlink (cleanup)");
+        return;
+    }
+
+    printf("Разделяемая память и keyfile очищены.\n");
 }

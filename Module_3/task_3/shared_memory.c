@@ -1,7 +1,22 @@
 #include "shared_memory.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 ChessClock* connect_shared_memory()
 {
+    // Создание keyfile, если он не существует
+    int fd = open(SHM_FILE, O_CREAT | O_RDWR, 0666);
+    if (fd == -1) {
+        perror("open (keyfile creation)");
+        return NULL;
+    }
+    close(fd); // Закрываем файл, так как он нам больше не нужен
+
     // Генерация ключа
     key_t shmkey = ftok(SHM_FILE, ID);
     if (shmkey == -1) {

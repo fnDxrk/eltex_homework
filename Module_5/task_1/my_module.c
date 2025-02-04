@@ -3,36 +3,48 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/time.h>
+#include <linux/uaccess.h>
 
-static void write_time_to_file(void)
+#define FILE_PATH "/var/log/my_module.log"
+
+static void write_time_to_file(const char* message)
 {
-    struct timespec64 time_ts;
-    ktime_get_real_ts64(&time_ts);
+    struct file* file;
+    struct timespec64 ts;
+    struct tm tm;
+    char buffer[128];
+    int len;
 
-    int timezone_offset = 7; // NSK (UTC+7)
-    int hours = (time_ts.tv_sec / 3600) % 24 + timezone_offset;
-    int minutes = (time_ts.tv_sec % 3600) / 60;
-    int seconds = time_ts.tv_sec % 60;
+    int timezone_offset = 7 * 3600; // NSK (UTC+7)
 
-    printk("Time: %02d:%02d:%02d\n", hours, minutes, seconds);
+    ktime_get_real_ts64(&ts);
+    time64_to_tm(ts.tv_sec + timezone_offset, 0, &tm);
+
+    len = snprintf(buffer, sizeof(buffer), "%s: %02d:%02d:%02d\n", message, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+    file = filp_open(FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    if (!IS_ERR(file)) {
+        kernel_write(file, buffer, len, &file->f_pos);
+        filp_close(file, NULL);
+    }
 }
 
-static int __init hello_init(void)
+static int __init my_module_init(void)
 {
 
     pr_info("Module loaded\n");
-    write_time_to_file();
+    write_time_to_file("Loaded");
     return 0;
 }
 
-static void __exit hello_exit(void)
+static void __exit my_module_exit(void)
 
 {
     pr_info("Module unloaded\n");
-    write_time_to_file();
+    write_time_to_file("Unloaded");
 }
 
-module_init(hello_init);
-module_exit(hello_exit);
+module_init(my_module_init);
+module_exit(my_module_exit);
 
 MODULE_LICENSE("GPL");

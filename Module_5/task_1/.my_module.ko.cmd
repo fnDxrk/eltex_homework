@@ -1,0 +1,1 @@
+savedcmd_my_module.ko := ld -r -m elf_x86_64 -z noexecstack --no-warn-rwx-segments --build-id=sha1  -T /usr/lib/modules/6.13.1-arch1-1/build/scripts/module.lds -o my_module.ko my_module.o my_module.mod.o .module-common.o
